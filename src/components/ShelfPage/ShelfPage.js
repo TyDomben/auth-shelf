@@ -10,13 +10,18 @@
 
 import React from "react";
 import { useSelector } from "react-redux";
+import ShelfForm from "../ShelfForm/ShelfForm";
+
 
 function ShelfPage() {
   const shelf = useSelector((store) => store.shelf);
 
+
+
   return (
     <div className="container">
       <h2>Shelf</h2>
+      <ShelfForm/>
       <div>
         {shelf.map((item) => (
           <div key={item.id}>
