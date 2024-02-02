@@ -9,25 +9,44 @@
 // app.use('/api/shelf', shelfRouter);
 
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ShelfForm from "../ShelfForm/ShelfForm";
-
+import { Button } from "@mui/material";
 
 function ShelfPage() {
   const shelf = useSelector((store) => store.shelf);
-
-
+  const user = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+  const handleDelete = () => {
+    console.log("delete the thing!", event.target.id);
+    dispatch({
+      type: "DELETE_ITEM",
+      payload: event.target.id,
+    });
+  };
 
   return (
     <div className="container">
       <h2>Shelf</h2>
-      <ShelfForm/>
+      <ShelfForm />
       <div>
         {shelf.map((item) => (
           <div key={item.id}>
             <h3>{item.description}</h3>
             <img src={item.image_url} />
-            <button>Delete</button>
+            {/* 
+the delete button should only render when they created the image
+- terniary operator for isAuthorized */}
+            {item.user_id === user.id && (
+              <Button
+                id={item.id}
+                variant="contained"
+                color="error"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            )}
           </div>
         ))}
       </div>
