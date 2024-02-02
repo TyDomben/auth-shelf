@@ -1,9 +1,7 @@
 const express = require("express");
 const pool = require("../modules/pool");
 const router = express.Router();
-const {
-  rejectUnauthenticated,
-} = require("../modules/authentication-middleware");
+const { rejectUnauthenticated } = require("../modules/authentication-middleware");
 
 /**
  * Get all of the items on the shelf
@@ -41,7 +39,7 @@ router.post("/", rejectUnauthenticated, (req, res) => {
   pool
     .query(queryText, queryParams)
     .then((result) => {
-      res.sendStatus(201)
+      res.sendStatus(201);
     })
     .catch((error) => {
       console.log("Error in POST: ", error);
@@ -55,8 +53,29 @@ router.post("/", rejectUnauthenticated, (req, res) => {
 /**
  * Delete an item if it's something the logged in user added
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", rejectUnauthenticated, (req, res) => {
   // endpoint functionality
+  console.log(req.user.id);
+  pool.query(`SELECT "user_id" FROM item WHERE id=${req.params.id};`).then((result) => {
+    console.log(result.rows[0].user_id);
+
+    if (result.rows[0].user_id === req.user.id) {
+      const queryText = `DELETE FROM "item" WHERE id=$1;`;
+
+      pool
+        .query(queryText, [req.params.id])
+        .then((result) => {
+          res.sendStatus(200);
+        })
+        .catch((error) => {
+          console.log("Error in DELETE: ", error);
+          res.sendStatus(500);
+        });
+    } else {
+      console.log("No bueno");
+      res.sendStatus(403);
+    }
+  });
 });
 
 /**
